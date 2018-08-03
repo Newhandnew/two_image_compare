@@ -19,9 +19,11 @@ def main(_):
     assert FLAGS.logs_dir, '`logs_dir` is missing.'
     logs_path = os.path.join('logs', FLAGS.logs_dir)
     data_dir = 'data'
-    tfrecord_train = '2_image_compare_train.tfrecords'
+    tfrecord_train = ['2_image_compare_train.tfrecords']
     load_checkpoint = True
-    train_tf_path = os.path.join(data_dir, tfrecord_train)
+    train_tf_path = []
+    for record in tfrecord_train:
+        train_tf_path.append(os.path.join(data_dir, record))
 
     crop_size = [256, 256]
     # Learning params
@@ -38,7 +40,6 @@ def main(_):
     num_ng_sample = 3760
     num_ok_sample = 4929
     class_ratio = num_ng_sample / (num_ng_sample + num_ok_sample)
-
 
     # Launch the graph
     with tf.Graph().as_default():

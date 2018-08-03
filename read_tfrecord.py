@@ -22,7 +22,13 @@ def _parse_function(serialized_example, pattern_extension, image_size, one_hot=T
 
 
 def get_record_number(tfrecord_path):
-    return sum(1 for _ in tf.python_io.tf_record_iterator(tfrecord_path))
+    if type(tfrecord_path) == list:
+        record_size = 0
+        for tfrecord in tfrecord_path:
+            record_size += sum(1 for _ in tf.python_io.tf_record_iterator(tfrecord))
+    else:
+        record_size = sum(1 for _ in tf.python_io.tf_record_iterator(tfrecord_path))
+    return record_size
 
 
 def get_data_batch(tfrecord_path, pattern_extension, image_size, batch_size, is_training=False, one_hot=True, num_classes=2):
@@ -37,8 +43,8 @@ def get_data_batch(tfrecord_path, pattern_extension, image_size, batch_size, is_
     dataset = tf.data.TFRecordDataset(tfrecord_path)
     dataset = dataset.map(lambda x: _parse_function(x, pattern_extension, image_size, one_hot, num_classes))
     if is_training:
-        dataset = dataset.repeat()  # Repeat the input indefinitely.
         dataset = dataset.shuffle(buffer_size=get_record_number(tfrecord_path))
+        dataset = dataset.repeat()  # Repeat the input indefinitely.
     dataset = dataset.batch(batch_size)
     # Create a one-shot iterator
     iterator = dataset.make_one_shot_iterator()
@@ -47,24 +53,25 @@ def get_data_batch(tfrecord_path, pattern_extension, image_size, batch_size, is_
 
 if __name__ == "__main__":
     data_dir = 'data'
-    tfrecord_test = '2_image_compare_train.tfrecords'
+    tfrecord_test = '2_image_compare_test.tfrecords'
     test_tf_path = os.path.join(data_dir, tfrecord_test)
     logs_path = "logs"
     image_size = [256, 256]
     num_classes = 2
-    is_training = False
+    pattern_extension = range(2)
+    is_training = True
     one_hot = False
 
     num_examples = get_record_number(test_tf_path)
     print(num_examples)
-    batch_size = 32
+    batch_size = 18
     num_batches = math.ceil(num_examples / float(batch_size))
     # Load the data
     test_image_batch, test_label_batch = get_data_batch(
-        test_tf_path, range(2), image_size, batch_size, is_training, one_hot)
+        [test_tf_path, test_tf_path], pattern_extension, image_size, batch_size, is_training, one_hot)
 
     with tf.Session() as sess:
-        for i in range(10):
+        for i in range(3):
             img, l = sess.run([test_image_batch, test_label_batch])
             print(img.shape, l)
             # cv2.imwrite('{}_side.png'.format(i), img[23][:, :, 0])

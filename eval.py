@@ -7,7 +7,7 @@ from read_tfrecord import get_data_batch, get_record_number
 slim = tf.contrib.slim
 
 flags = tf.app.flags
-flags.DEFINE_string('logs_dir', 'alexnet_new_data',
+flags.DEFINE_string('logs_dir', 'compare',
                     'Directory to save the checkpoints and training summaries.')
 FLAGS = flags.FLAGS
 
@@ -19,8 +19,10 @@ def main(_):
     assert FLAGS.logs_dir, '`logs_dir` is missing.'
     logs_path = os.path.join('logs', FLAGS.logs_dir)
     data_dir = 'data'
-    tfrecord_test = '2_image_compare_test.tfrecords'
-    test_tf_path = os.path.join(data_dir, tfrecord_test)
+    tfrecord_test = ['2_image_compare_test.tfrecords']
+    test_tf_path = []
+    for record in tfrecord_test:
+        test_tf_path.append(os.path.join(data_dir, record))
     crop_size = [256, 256]
     num_classes = 2
     pattern_extension = range(2)

@@ -2,32 +2,37 @@ import tkinter as tk
 from tkinter import filedialog
 
 
-def click_ok():
-    # global count
-    # count = count + 1
-    # label.configure(text="Click OK " + str(count) + " times")
-    file = filedialog.askopenfile(parent=root, mode='rb', title='Choose a file')
-    if file:
-        data = file.read()
-        # print(file.name)
-        file.close()
-        # print("I got %d bytes from this file." % len(data))
-        return file.name
-    else:
-        print("No file!")
+class Window(object):
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Tk GUI")
+        self.label = tk.Label(self.root, text="Hello World!", font=('Helvetica', '12'))
+        widget = tk.Label(self.root, compound='top')
+        self.btn_load = tk.Button(self.root, text="Load", command=self.click_load, font=('Helvetica', '18'))
+        self.root.geometry("500x100")
+        self.root.resizable(width=False, height=False)
+
+    def click_load(self):
+        file = filedialog.askopenfile(parent=self.root, mode='rb', title='Choose a file')
+        if file:
+            self.label.config(text=file.name)
+            data = file.read()
+
+            file.close()
+            return file.name
+        else:
+            self.label.config(text="No file!")
+
+    def run(self):
+        self.label.pack()
+        self.btn_load.pack()
+        self.root.mainloop()
 
 
-root = tk.Tk()
-root.title("Tk GUI")
-label = tk.Label(root, text="Hello World!")
-widget = tk.Label(root, compound='top')
-# widget.image = tk.PhotoImage(file=file)
+def main():
+    window = Window()
+    window.run()
 
-count = 0
 
-button = tk.Button(root, text="OK", command=click_ok)
-
-label.pack()
-button.pack()
-
-root.mainloop()
+if __name__ == '__main__':
+    main()
